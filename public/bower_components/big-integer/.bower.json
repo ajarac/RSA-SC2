@@ -1,0 +1,14 @@
+{
+  "name": "big-integer",
+  "homepage": "https://github.com/peterolson/BigInteger.js",
+  "_release": "56f449108e",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "56f449108e31542f939e701f1fe562a46e6c1fab"
+  },
+  "_source": "git://github.com/peterolson/BigInteger.js.git",
+  "_target": "*",
+  "_originalSource": "big-integer",
+  "_direct": true
+}
