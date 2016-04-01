@@ -4,7 +4,7 @@ var bignum = require('bignum');
 var rsa = require('./rsa-bignum.js');
 var sha256 = require('js-sha256');
 
-
+// -- NR TTP
 router.post('/nrttp', function(req, res) {
 	console.log("---------- FASE 2 ----------")
 	console.log("BODY", req.body);
