@@ -7,13 +7,27 @@ var sha256 = require('js-sha256');
 // -- NR TTP
 router.post('/nrttp', function(req, res) {
 	console.log("---------- FASE 2 ----------")
-	console.log("BODY", req.body);
-	var destino = req.body.destino;
+
+	var proofA = req.body['proof[]'];
+
+	//var publicKeyA = bignum(req.body['publicKey[]']);
+	publicAn = bignum(req.body['publicKey[n][]']);
+	publicAe = bignum(req.body['publicKey[e]']);
+	publicAbytes = req.body['publicKey[bytes]'];
+
+	publicKeyA = new rsa.publicKey(publicAbytes, publicAn, publicAe);
+	proofA = publicKeyA.decrypt(bignum(proofA));
+	console.log(proofA);
+	var proof = '';
+	for(i=0; i<proofA.length;i++){
+		
+		proof += proofA.fromCharCode(i)
+	}
+	console.log(proof);
+	res.status(200).send()
+	/*
 	if(destino == 'servidorNode'){
-		//todo bien
-		var user = req.body.user;
 		//var proof = req.body.proof;
-		var msg = req.body.msg;
 		var hash = sha256(msg);
 		var proof2 = (user+'-'+hash);
 		var publicaA = req.body.publicKey;
@@ -33,7 +47,6 @@ router.post('/nrttp', function(req, res) {
 		console.log("Desencriptado: " + y);
 
 		var out = {
-			user:user,
 			proof:x,
 			publicKey:keyB.publicKey.e
 		}
@@ -42,6 +55,7 @@ router.post('/nrttp', function(req, res) {
 	} else{
 		res.status(403).send("403 Forbiden");
 	}
+	*/
 });
 
 router.post('/ttp', function (req, res){

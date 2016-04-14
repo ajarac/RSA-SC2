@@ -25,7 +25,6 @@ rsa = {
 
         e = bigInt(65537);
         d = bigInt.modInv(e, phi);
-
         keys.publicKey = new rsa.publicKey(this.bitlength, n, e);
         keys.privateKey = new rsa.privateKey(p, q, d, keys.publicKey);
         return keys;
@@ -52,47 +51,63 @@ rsa.privateKey.prototype = {
 };
 
 function nrttp(){
-	if(texto == '' || user == ''){
+	if(texto == ''){
 		alert("Escribe algo!");
 	} else{
 		console.log("---------- FASE 1 ----------")
 		var texto = $('#text').val();
-		var user = $('#user').val();
 		console.log("texto", texto);
-		console.log("user", user);
-		var hash = sha256(texto);
-		var proof = (destino + '-' + hash);
-		console.log("proof", proof);
+		console.log("Creando hash texto...");
+		
+		var keyText = rsa.generateKeys(512);
+		var bytesText = "";
+		for(i=0; i<texto.length;i++){
+			bytesText += texto.charCodeAt(i);
+		}
+		console.log(bytesText);
+		var hash = bigInt(bytesText);
+		hash = keyText.privateKey.encrypt(hash)
+		console.log(keyText);
+		
+
+		console.log("Creando proof...");
+		var proof = (destino + '-1-' + hash);
+		//console.log("proof", proof);
 		var bytes = "";
 		for(i=0;i<proof.length;i++){
 			bytes+= proof.charCodeAt(i);
 		}
-		console.log("Bytes", bytes);
+		console.log("Encriptando proof... esto puede tardar un rato...");
+		//console.log("Bytes", bytes);
 		var keyA = rsa.generateKeys(1024);
 
 
 		var b = bigInt(bytes);
-		console.log("Original: " + b);
+		//console.log("Original: " + b);
 
 		var x = keyA.privateKey.encrypt(b);
+		/*
 		console.log(x);
 		console.log("Encriptado: " + x);
-
+		
 		var y = keyA.publicKey.decrypt(x);
 		console.log("Desencriptado: " + y);
-
+		*/
 		var clavePublica = keyA.publicKey.n.value;
 		console.log("KEY PUBLIC", clavePublica);
+		console.log("Enviando proof..");
 		$.ajax({
 			url:"/nrttp",
 			method:"POST",
 			data:{
-				destino:destino,
-				msg:texto,
-				user:user,
 				proof:x.value,
-				publicKey:clavePublica
+				publicKey:{
+					bytes:512,
+					n:keyA.publicKey.n.value,
+					e:keyA.publicKey.e.value
+				}
 			},
+			/*
 			success:function (data){
 				console.log("---------- FASE 3 ----------")
 				console.log("RESPUESTA", data);
@@ -122,6 +137,7 @@ function nrttp(){
 					}
 				})
 			}
+			*/
 		})
 	}
 }
