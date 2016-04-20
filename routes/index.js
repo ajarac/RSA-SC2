@@ -4,27 +4,37 @@ var bignum = require('bignum');
 var rsa = require('./rsa-bignum.js');
 var sha256 = require('js-sha256');
 
+function convertFromHex(hex) {
+    var hex = hex.toString();//force conversion
+    var str = '';
+    for (var i = 0; i < hex.length; i += 2)
+        str += String.fromCharCode(parseInt(hex.substr(i, 2)));
+    return str;
+}
 // -- NR TTP
 router.post('/nrttp', function(req, res) {
 	console.log("---------- FASE 2 ----------")
-
-	var proofA = req.body['proof[]'];
-
+	console.log(req.body);
+	var proofA = bignum(req.body['proof'],16);
 	//var publicKeyA = bignum(req.body['publicKey[]']);
-	publicAn = bignum(req.body['publicKey[n][]']);
-	publicAe = bignum(req.body['publicKey[e]']);
-	publicAbytes = req.body['publicKey[bytes]'];
+	var publicAn = bignum(req.body['publicKey[n]'], 16);
+	var publicAe = bignum(req.body['publicKey[e]'], 16);
+	var publicAbytes = req.body['publicKey[bytes]'];
+	console.log("n", publicAn);
+	console.log("e", publicAe);
+	//publicKeyA = new rsa.publicKey(publicAbytes, publicAn, publicAe);
 
-	publicKeyA = new rsa.publicKey(publicAbytes, publicAn, publicAe);
-	proofA = publicKeyA.decrypt(bignum(proofA));
-	console.log(proofA);
-	var proof = '';
-	for(i=0; i<proofA.length;i++){
-		
-		proof += proofA.fromCharCode(i)
-	}
-	console.log(proof);
-	res.status(200).send()
+	proof = proofA.powm(publicAe, publicAn);
+	console.log("proof 1", proof);
+	pr = proof.toString(16);
+
+	console.log("proof", pr);
+
+	p = convertFromHex(pr);
+
+	console.log("p", p);
+
+	res.status(200).send();
 	/*
 	if(destino == 'servidorNode'){
 		//var proof = req.body.proof;

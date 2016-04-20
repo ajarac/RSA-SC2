@@ -50,6 +50,14 @@ rsa.privateKey.prototype = {
 	}
 };
 
+function convertToHex(str) {
+    var hex = '';
+    for(var i=0;i<str.length;i++) {
+        hex += ''+str.charCodeAt(i);
+    }
+    return hex;
+}
+
 function nrttp(){
 	if(texto == ''){
 		alert("Escribe algo!");
@@ -57,54 +65,50 @@ function nrttp(){
 		console.log("---------- FASE 1 ----------")
 		var texto = $('#text').val();
 		console.log("texto", texto);
-		console.log("Creando hash texto...");
-		
-		var keyText = rsa.generateKeys(512);
-		var bytesText = "";
-		for(i=0; i<texto.length;i++){
-			bytesText += texto.charCodeAt(i);
-		}
-		console.log(bytesText);
-		var hash = bigInt(bytesText);
-		hash = keyText.privateKey.encrypt(hash)
-		console.log(keyText);
-		
 
 		console.log("Creando proof...");
-		var proof = (destino + '-1-' + hash);
+		var proof = destino + '1' + sha256(texto);
+		console.log("proof", proof);
 		//console.log("proof", proof);
+		
+		/*
 		var bytes = "";
 		for(i=0;i<proof.length;i++){
 			bytes+= proof.charCodeAt(i);
 		}
+		*/
+		bytes = convertToHex(proof);
+		console.log("bytes", bytes);
+		
+		var b = bigInt(bytes);
+		console.log("b", b);
+
 		console.log("Encriptando proof... esto puede tardar un rato...");
 		//console.log("Bytes", bytes);
 		var keyA = rsa.generateKeys(1024);
 
-
-		var b = bigInt(bytes);
 		//console.log("Original: " + b);
 
 		var x = keyA.privateKey.encrypt(b);
-		/*
+		console.log("n", keyA.publicKey.n.value);
+		console.log("e", keyA.publicKey.e.value);
+		
 		console.log(x);
 		console.log("Encriptado: " + x);
 		
 		var y = keyA.publicKey.decrypt(x);
 		console.log("Desencriptado: " + y);
-		*/
+		
 		var clavePublica = keyA.publicKey.n.value;
-		console.log("KEY PUBLIC", clavePublica);
 		console.log("Enviando proof..");
 		$.ajax({
 			url:"/nrttp",
 			method:"POST",
 			data:{
-				proof:x.value,
+				proof:x.toString(16),
 				publicKey:{
-					bytes:512,
-					n:keyA.publicKey.n.value,
-					e:keyA.publicKey.e.value
+					n:keyA.publicKey.n.toString(16),
+					e:keyA.publicKey.e.toString(16)
 				}
 			},
 			/*
