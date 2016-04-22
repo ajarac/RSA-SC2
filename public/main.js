@@ -97,8 +97,6 @@ function nrttp(){
 
 		console.log("Encriptando proof... ");
 		var x = keyA.privateKey.encrypt(b);
-		console.log("n", keyA.publicKey.n.value);
-		console.log("e", keyA.publicKey.e.value);
 		
 		console.log(x);
 		console.log("Encriptado: " + x.toString());

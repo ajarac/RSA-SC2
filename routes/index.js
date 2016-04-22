@@ -24,25 +24,20 @@ router.post('/nrttp', function(req, res) {
 	console.log("---------- FASE 2 ----------")
 	console.log(req.body);
 	var proofA = bignum(req.body['proof'],16);
-	console.log("proofA", proofA.toString());
 	//var publicKeyA = bignum(req.body['publicKey[]']);
 	var publicAn = bignum(req.body['publicKey[n]'], 16);
 	var publicAe = bignum(req.body['publicKey[e]'], 16);
 	var publicAbytes = req.body['publicKey[bytes]'];
-	console.log("n", publicAn);
-	console.log("e", publicAe);
 
 	proof = proofA.powm(publicAe, publicAn);
+	
 	console.log("proof 1", proof.toString(16));
 	pr = hex2asc(proof.toString(16));
+	
 	//pr = proof.toBuffer().toString('base64');
 
 	console.log("proof 2", pr);
 	
-	var buf = new Buffer(pr, 'base16');
-	var plain = buf.toString();
-	console.log("proof 3", pr);
-
 	res.status(200).send();
 	/*
 	if(destino == 'servidorNode'){
