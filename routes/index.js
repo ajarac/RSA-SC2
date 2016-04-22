@@ -3,6 +3,7 @@ var router = express.Router();
 var bignum = require('bignum');
 var rsa = require('./rsa-bignum.js');
 var sha256 = require('js-sha256');
+var Base64 = require('./base64.js');
 
 function convertFromHex(hex) {
     var hex = hex.toString();//force conversion
@@ -16,21 +17,26 @@ router.post('/nrttp', function(req, res) {
 	console.log("---------- FASE 2 ----------")
 	console.log(req.body);
 	var proofA = bignum(req.body['proof'],16);
+	console.log("proofA", proofA.toString());
 	//var publicKeyA = bignum(req.body['publicKey[]']);
 	var publicAn = bignum(req.body['publicKey[n]'], 16);
 	var publicAe = bignum(req.body['publicKey[e]'], 16);
 	var publicAbytes = req.body['publicKey[bytes]'];
 	console.log("n", publicAn);
 	console.log("e", publicAe);
-	//publicKeyA = new rsa.publicKey(publicAbytes, publicAn, publicAe);
 
 	proof = proofA.powm(publicAe, publicAn);
-	console.log("proof 1", proof);
-	pr = proof.toString(16);
+	console.log("proof 1", proof.toString());
 
-	console.log("proof", pr);
+	pr = proof.toString();
 
-	p = convertFromHex(pr);
+	console.log("proof 2", pr);
+	
+	pr = atob(pr);
+	console.log("proof 3", pr);
+	
+
+	p = convertFromHex(proof.toString('base64'));
 
 	console.log("p", p);
 

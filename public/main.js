@@ -77,27 +77,26 @@ function nrttp(){
 			bytes+= proof.charCodeAt(i);
 		}
 		*/
-		bytes = convertToHex(proof);
-		console.log("bytes", bytes);
-		
-		var b = bigInt(bytes);
+		/*
+		hex = convertToHex(proof);
+		console.log("hex", hex);
+		*/
+		var b = bigInt(proof.toString('base64'), 64);
 		console.log("b", b);
 
-		console.log("Encriptando proof... esto puede tardar un rato...");
-		//console.log("Bytes", bytes);
+		console.log("Generando key...");
 		var keyA = rsa.generateKeys(1024);
 
-		//console.log("Original: " + b);
-
+		console.log("Encriptando proof... ");
 		var x = keyA.privateKey.encrypt(b);
 		console.log("n", keyA.publicKey.n.value);
 		console.log("e", keyA.publicKey.e.value);
 		
 		console.log(x);
-		console.log("Encriptado: " + x);
+		console.log("Encriptado: " + x.toString());
 		
 		var y = keyA.publicKey.decrypt(x);
-		console.log("Desencriptado: " + y);
+		console.log("Desencriptado: " + y.toString(10));
 		
 		var clavePublica = keyA.publicKey.n.value;
 		console.log("Enviando proof..");
