@@ -5,12 +5,19 @@ var rsa = require('./rsa-bignum.js');
 var sha256 = require('js-sha256');
 var Base64 = require('./base64.js');
 
-function convertFromHex(hex) {
-    var hex = hex.toString();//force conversion
-    var str = '';
-    for (var i = 0; i < hex.length; i += 2)
-        str += String.fromCharCode(parseInt(hex.substr(i, 2)));
-    return str;
+function asc2hex(pStr) {
+	tempstr = '';
+	for (a = 0; a < pStr.length; a = a + 1) {
+		tempstr = tempstr + pStr.charCodeAt(a).toString(16);
+	}
+	return tempstr;
+}
+function hex2asc(pStr) {
+	tempstr = '';
+	for (b = 0; b < pStr.length; b = b + 2) {
+		tempstr = tempstr + String.fromCharCode(parseInt(pStr.substr(b, 2), 16));
+	}
+	return tempstr;
 }
 // -- NR TTP
 router.post('/nrttp', function(req, res) {
@@ -26,19 +33,15 @@ router.post('/nrttp', function(req, res) {
 	console.log("e", publicAe);
 
 	proof = proofA.powm(publicAe, publicAn);
-	console.log("proof 1", proof.toString());
-
-	pr = proof.toString();
+	console.log("proof 1", proof.toString(16));
+	pr = hex2asc(proof.toString(16));
+	//pr = proof.toBuffer().toString('base64');
 
 	console.log("proof 2", pr);
 	
-	pr = atob(pr);
+	var buf = new Buffer(pr, 'base16');
+	var plain = buf.toString();
 	console.log("proof 3", pr);
-	
-
-	p = convertFromHex(proof.toString('base64'));
-
-	console.log("p", p);
 
 	res.status(200).send();
 	/*
