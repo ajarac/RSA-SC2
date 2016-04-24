@@ -31,14 +31,22 @@ router.post('/nrttp', function(req, res) {
 
 	proof = proofA.powm(publicAe, publicAn);
 	
-	console.log("proof 1", proof.toString(16));
+	console.log("proof en bignum: ", proof.toString(16));
 	pr = hex2asc(proof.toString(16));
 	
 	//pr = proof.toBuffer().toString('base64');
 
-	console.log("proof 2", pr);
+	console.log("proof en texto plano: ", pr);
 	
-	res.status(200).send();
+	pr = pr.split('-');
+	console.log("proof separados", pr);
+
+	if(pr[0] == 'servidorNode'){
+		
+		res.status(200).send();
+	} else{
+		res.status(400).send('Destino incorrecto!');
+	}
 	/*
 	if(destino == 'servidorNode'){
 		//var proof = req.body.proof;

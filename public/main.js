@@ -65,32 +65,22 @@ function hex2asc(pStr) {
 	return tempstr;
 }
 function nrttp(){
+	var texto = $('#text').val();
 	if(texto == ''){
 		alert("Escribe algo!");
 	} else{
 		console.log("---------- FASE 1 ----------")
-		var texto = $('#text').val();
 		console.log("texto", texto);
 
 		console.log("Creando proof...");
 		var proof = destino + '-1-' + sha256(texto);
 		console.log("proof", proof);
-		//console.log("proof", proof);
-		
-		/*
-		var bytes = "";
-		for(i=0;i<proof.length;i++){
-			bytes+= proof.charCodeAt(i);
-		}
-		*/
+
 		bytes = asc2hex(proof);
-		/*
-		hex = convertToHex(proof);
-		console.log("hex", hex);
-		*/
+
 		console.log("bytes", bytes);
 		var b = bigInt(bytes, 16);
-		console.log("b", b);
+		console.log("b", b.toString());
 
 		console.log("Generando key...");
 		var keyA = rsa.generateKeys(1024);
@@ -98,7 +88,6 @@ function nrttp(){
 		console.log("Encriptando proof... ");
 		var x = keyA.privateKey.encrypt(b);
 		
-		console.log(x);
 		console.log("Encriptado: " + x.toString());
 		
 		var y = keyA.publicKey.decrypt(x);
@@ -114,7 +103,8 @@ function nrttp(){
 				publicKey:{
 					n:keyA.publicKey.n.toString(16),
 					e:keyA.publicKey.e.toString(16)
-				}
+				},
+				user:$('#user').val()
 			},
 			/*
 			success:function (data){
