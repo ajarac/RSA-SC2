@@ -66,8 +66,9 @@ function hex2asc(pStr) {
 }
 function nrttp(){
 	var texto = $('#text').val();
-	if(texto == ''){
-		alert("Escribe algo!");
+	var user = $('#user').val();
+	if(texto == '' || user == ''){
+		alert("Escribe usuario y texto!");
 	} else{
 		console.log("---------- FASE 1 ----------")
 		console.log("texto", texto);
@@ -104,8 +105,55 @@ function nrttp(){
 					n:keyA.publicKey.n.toString(16),
 					e:keyA.publicKey.e.toString(16)
 				},
-				user:$('#user').val()
+				user:user
 			},
+			success: function(data){
+				console.log("------------FASE 3-----------");
+				console.log("data", data);
+				var proof = bigInt(data['proof'], 16);
+				console.log("proof", proof.toString());
+
+				var publicKeyBn = bigInt(data['publicKey']['n'], 16);
+				var publicKeyBe = bigInt(data['publicKey']['e'], 16);
+
+				proof = proof.modPow(publicKeyBe, publicKeyBn);
+				console.log("proof en bigint", proof.toString(16));
+
+				pr = hex2asc(proof.toString(16));
+
+				console.log("proof en texto plano", pr);
+				pr = pr.split('-');
+
+				if(pr[0] != user || parseInt(pr[1]) != 2){
+					alert("Error en fase 3");
+				} else{
+					proof = destino+ '-3-' + texto;
+					console.log("Proof a enviar", proof);
+					bytes = asc2hex(proof);
+					console.log("bytes", bytes);
+					var b = bigInt(bytes, 16);
+					console.log("b", b.toString());
+					console.log("Encriptando proof... ");
+					var x = keyA.privateKey.encrypt(b);
+					console.log("Encriptado: " + x.toString());
+					
+					$.ajax({
+						url:"/ttp",
+						method:"POST",
+						data:{
+							proof:x.toString(16),
+							publicKey:{
+								n:keyA.publicKey.n.toString(16),
+								e:keyA.publicKey.e.toString(16)
+							},
+							user:user
+						},
+						success: function(data){
+							alert("Entregao correctamente!");
+						}
+					})
+				}
+			}
 			/*
 			success:function (data){
 				console.log("---------- FASE 3 ----------")

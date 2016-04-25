@@ -4,7 +4,7 @@ var bignum = require('bignum');
 var rsa = require('./rsa-bignum.js');
 var sha256 = require('js-sha256');
 var Base64 = require('./base64.js');
-
+var nrModel = require('mongoose').model('nrModel');
 function asc2hex(pStr) {
 	tempstr = '';
 	for (a = 0; a < pStr.length; a = a + 1) {
@@ -19,15 +19,14 @@ function hex2asc(pStr) {
 	}
 	return tempstr;
 }
+
+var usuarioB = 'servidorNode';
 // -- NR TTP
 router.post('/nrttp', function(req, res) {
 	console.log("---------- FASE 2 ----------")
-	console.log(req.body);
 	var proofA = bignum(req.body['proof'],16);
-	//var publicKeyA = bignum(req.body['publicKey[]']);
 	var publicAn = bignum(req.body['publicKey[n]'], 16);
 	var publicAe = bignum(req.body['publicKey[e]'], 16);
-	var publicAbytes = req.body['publicKey[bytes]'];
 
 	proof = proofA.powm(publicAe, publicAn);
 	
@@ -38,80 +37,83 @@ router.post('/nrttp', function(req, res) {
 
 	console.log("proof en texto plano: ", pr);
 	
-	pr = pr.split('-');
-	console.log("proof separados", pr);
+	p = pr.split('-');
+	console.log("proof separados", p);
 
-	if(pr[0] == 'servidorNode'){
+	if(p[0] == usuarioB && req.body.user != undefined){
 		
-		res.status(200).send();
+		proof = req.body.user + '-2-' + p[2];
+
+		var bytes = asc2hex(proof);
+		console.log("bytes", bytes);
+
+		var b = bignum(bytes, 16);
+
+		console.log("b", b.toString());
+
+		console.log("Generando key...");
+		var keyB = rsa.generateKeys(1024);
+
+		console.log("Encriptando proof..");
+		var x = keyB.privateKey.encrypt(b);
+
+		console.log("Encriptado", x.toString());
+		var norepModel = new nrModel({
+			idA:req.body.user,
+			idB:usuarioB,
+			publicaA:{
+				e:publicAe.toString(),
+				n:publicAn.toString()
+			},
+			prueba:pr
+		})
+		norepModel.save(function (err){		
+			res.status(200).send({
+				proof:x.toString(16),
+				publicKey:{
+					n:keyB.publicKey.n.toString(16),
+					e:keyB.publicKey.e.toString(16)
+				},
+				user:usuarioB
+			});
+		});
 	} else{
 		res.status(400).send('Destino incorrecto!');
 	}
-	/*
-	if(destino == 'servidorNode'){
-		//var proof = req.body.proof;
-		var hash = sha256(msg);
-		var proof2 = (user+'-'+hash);
-		var publicaA = req.body.publicKey;
-		var bytes = "";
-		for(i=0;i<proof2.length;i++){
-			bytes+= proof2.charCodeAt(i);
-		}
-		var keyB = rsa.generateKeys(1024);
-
-		var b = bignum(bytes);
-		console.log("Original: ", b);
-
-		var x = keyB.privateKey.encrypt(b);
-		console.log("Encriptado: " + x);
-
-		var y = keyB.publicKey.decrypt(x);
-		console.log("Desencriptado: " + y);
-
-		var out = {
-			proof:x,
-			publicKey:keyB.publicKey.e
-		}
-		console.log("out", out);
-		res.status(200).send(out);
-	} else{
-		res.status(403).send("403 Forbiden");
-	}
-	*/
+	
 });
 
 router.post('/ttp', function (req, res){
 	console.log("---------- FASE 4 ----------")
 	console.log("BODY", req.body);
-	var B = req.body.destino;
-	var k = req.body.k;
-	var user = req.body.user;
-	var proof = (user +'-'+B+'-'+k);
+	if( req.body.user != undefined){
+		nrModel.find({
+			idA:req.body.user,
+			idB:usuarioB
+		}, function (err, result){
+			if(err) throw err;	
+			var proofA = bignum(req.body['proof'],16);
+			var publicAn = bignum(req.body['publicKey[n]'], 16);
+			var publicAe = bignum(req.body['publicKey[e]'], 16);
+			
+			proof = proofA.powm(publicAe, publicAn);
+			console.log("proof en bignum: ", proof.toString(16));
+			pr = hex2asc(proof.toString(16));
+			
+			//pr = proof.toBuffer().toString('base64');
 
-	var bytes = "";
-	for(i=0;i<proof.length;i++){
-		bytes+=proof.charCodeAt(i);
+			console.log("proof en texto plano: ", pr);
+			
+			p = pr.split('-');
+			console.log("proof separados", p);
+			result.remove();
+
+			res.status(200).send();
+		})
+	} else{
+		res.status(400).send("Usuario incorrecto");
 	}
-	console.log("Bytes", bytes);
-	var keyTTP = rsa.generateKeys(1024);
 
-	var b = bignum(bytes);
-	console.log("Original:", b);
-
-	var x = keyTTP.privateKey.encrypt(b);
-	console.log("Encriptado", x);
-
-	var y = keyTTP.publicKey.decrypt(x);
-	console.log("Desencriptado", y);
-
-
-	var out = {
-		a:user,
-		b:B,
-		k:k,
-		proof:x
-	}
-	res.status(200).send(out);
 });
 
 

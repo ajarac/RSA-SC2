@@ -2,9 +2,12 @@ var mongoose = require('mongoose'),
 	Schema = mongoose.Schema;
 
 var nrModel = new Schema({
-	id1: {type: String},
-	id2: {type: String},
-	publicaA: [{type:Number}],
+	idA: {type: String},
+	idB: {type: String},
+	publicaA: {
+		e:{type:String},
+		n:{type:String}
+	},
 	prueba:{type:String}
 });
 
