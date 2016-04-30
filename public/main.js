@@ -74,7 +74,8 @@ function nrttp(){
 		console.log("texto", texto);
 
 		console.log("Creando proof...");
-		var proof = destino + '-1-' + sha256(texto);
+		var encrypted = CryptoJS.AES.encrypt(texto, "llave");
+		var proof = destino + '-1-' + encrypted;
 		console.log("proof", proof);
 
 		bytes = asc2hex(proof);
@@ -127,7 +128,7 @@ function nrttp(){
 				if(pr[0] != user || parseInt(pr[1]) != 2){
 					alert("Error en fase 3");
 				} else{
-					proof = destino+ '-3-' + texto;
+					proof = destino+ '-3-superllave';
 					console.log("Proof a enviar", proof);
 					bytes = asc2hex(proof);
 					console.log("bytes", bytes);

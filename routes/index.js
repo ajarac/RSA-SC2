@@ -65,7 +65,7 @@ router.post('/nrttp', function(req, res) {
 				e:publicAe.toString(),
 				n:publicAn.toString()
 			},
-			prueba:pr
+			prueba:p[2]
 		})
 		norepModel.save(function (err){		
 			res.status(200).send({
@@ -87,7 +87,7 @@ router.post('/ttp', function (req, res){
 	console.log("---------- FASE 4 ----------")
 	console.log("BODY", req.body);
 	if( req.body.user != undefined){
-		nrModel.find({
+		nrModel.findOne({
 			idA:req.body.user,
 			idB:usuarioB
 		}, function (err, result){
@@ -106,6 +106,12 @@ router.post('/ttp', function (req, res){
 			
 			p = pr.split('-');
 			console.log("proof separados", p);
+			console.log("llave:", p[2]);
+			var AES = require('aes')
+			var aes = new AES(p[2]);
+
+			console.log("MENSAJE DESENCRIPTADO: ", aes.decrypt(result['prueba']))
+
 			result.remove();
 
 			res.status(200).send();
