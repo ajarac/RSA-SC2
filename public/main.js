@@ -1,4 +1,5 @@
 var destino = 'servidorNode';
+var clave = 'superllave';
 rsa = {
     publicKey: function (bits, n, e) {
         this.bits = bits;
@@ -64,6 +65,9 @@ function hex2asc(pStr) {
 	}
 	return tempstr;
 }
+
+
+
 function nrttp(){
 	var texto = $('#text').val();
 	var user = $('#user').val();
@@ -74,7 +78,7 @@ function nrttp(){
 		console.log("texto", texto);
 
 		console.log("Creando proof...");
-		var encrypted = CryptoJS.AES.encrypt(texto, "llave");
+		var encrypted = CryptoJS.AES.encrypt(texto, clave);
 		var proof = destino + '-1-' + encrypted;
 		console.log("proof", proof);
 
@@ -155,37 +159,7 @@ function nrttp(){
 					})
 				}
 			}
-			/*
-			success:function (data){
-				console.log("---------- FASE 3 ----------")
-				console.log("RESPUESTA", data);
-				var k = Math.round(Math.random()*10000);
-				proof = (destino+'-'+k);
-				bytes = "";
-				for(i=0;i<proof.length;i++){
-					bytes+= proof.charCodeAt(i);
-				}
-				console.log("Bytes", bytes);
-				b = bigInt(bytes);
-				console.log("Original: "+b);
-				x = keyA.privateKey.encrypt(b);
-				console.log("Encriptado: ", x);
-				$.ajax({
-					url:"/ttp",
-					method:"POST",
-					data:{
-						destino:destino,
-						k:k,
-						proof:x.value,
-						user:user
-					},
-					success:function (data){
-						alert("FIN nrttp");
-						console.log("FIN", data);
-					}
-				})
-			}
-			*/
 		})
 	}
 }
+

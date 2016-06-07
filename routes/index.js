@@ -92,6 +92,7 @@ router.post('/ttp', function (req, res){
 			idB:usuarioB
 		}, function (err, result){
 			if(err) throw err;	
+			console.log("RESULT MONGODB", result);
 			var proofA = bignum(req.body['proof'],16);
 			var publicAn = bignum(req.body['publicKey[n]'], 16);
 			var publicAe = bignum(req.body['publicKey[e]'], 16);
@@ -100,21 +101,30 @@ router.post('/ttp', function (req, res){
 			console.log("proof en bignum: ", proof.toString(16));
 			pr = hex2asc(proof.toString(16));
 			
-			//pr = proof.toBuffer().toString('base64');
+
 
 			console.log("proof en texto plano: ", pr);
+			
 			
 			p = pr.split('-');
 			console.log("proof separados", p);
 			console.log("llave:", p[2]);
-			var AES = require('aes')
-			var aes = new AES(p[2]);
+			/*
+			var AES = require('aes');
+			console.log("requerido");
+			var aes = new AES([p[2]]);
+			console.log("instanciado");
+			var mensaje = aes.decrypt(result['prueba'].toString());
+			*/
+			var CryptoJS = require("crypto-js");
 
-			console.log("MENSAJE DESENCRIPTADO: ", aes.decrypt(result['prueba']))
+			var bytes  = CryptoJS.AES.decrypt(result['prueba'].toString(), p[2]);
+			var mensaje = bytes.toString(CryptoJS.enc.Utf8);
+			console.log("MENSAJE DESENCRIPTADO: ", mensaje)
 
-			result.remove();
-
-			res.status(200).send();
+			nrModel.remove({_id:result['_id']}, function (err){
+				res.status(200).send();
+			});
 		})
 	} else{
 		res.status(400).send("Usuario incorrecto");

@@ -6,6 +6,9 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "aes": "^0.1.0",
+    "aes-js": "^1.0.0",
+    "aes256": "^1.0.2",
     "bignum": "^0.11.0",
     "body-parser": "~1.13.2",
     "bower": "^1.7.7",
