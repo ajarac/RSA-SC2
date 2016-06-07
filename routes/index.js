@@ -109,18 +109,15 @@ router.post('/ttp', function (req, res){
 			p = pr.split('-');
 			console.log("proof separados", p);
 			console.log("llave:", p[2]);
-			/*
-			var AES = require('aes');
-			console.log("requerido");
-			var aes = new AES([p[2]]);
-			console.log("instanciado");
-			var mensaje = aes.decrypt(result['prueba'].toString());
-			*/
+
 			var CryptoJS = require("crypto-js");
 
 			var bytes  = CryptoJS.AES.decrypt(result['prueba'].toString(), p[2]);
 			var mensaje = bytes.toString(CryptoJS.enc.Utf8);
+			console.log("----------------------------------------");
+			console.log("USUARIO: ", result['idA']);
 			console.log("MENSAJE DESENCRIPTADO: ", mensaje)
+			console.log("----------------------------------------");
 
 			nrModel.remove({_id:result['_id']}, function (err){
 				res.status(200).send();
